@@ -1,0 +1,63 @@
+import {models} from './models.js';
+import {diagram} from './art.js';
+import {loadProgress,saveProgress,modelFromHash,moveStep} from './state.js';
+import {setupSwipe} from './swipe.js';
+const main=document.getElementById('main');
+let progress=loadProgress();let category='All models';let view='guide';let celebrate=false;
+function h(tag,attrs={},...children){const node=document.createElement(tag);for(const [key,value]of Object.entries(attrs)){
+ if(value==null||value===false)continue;if(key.startsWith('on'))node.addEventListener(key.slice(2).toLowerCase(),value);else node.setAttribute(key,value===true?'':String(value));
+}node.append(...children.flat(Infinity).filter(c=>c!=null&&c!==false));return node;}
+const arrow=()=>h('span',{'aria-hidden':'true'},'↗');
+function save(model,step,completed=progress[model.id]?.completed===true){progress[model.id]={step,completed};saveProgress(progress);}
+function card(model,index){const saved=progress[model.id];return h('a',{class:`model-card ${model.color}`,href:`#/${model.id}`},
+ h('div',{class:'card-art'},h('span',{class:'card-number'},String(index+1).padStart(2,'0')),diagram(model,{thumbnail:true}),saved?.completed?h('span',{class:'completed-badge'},'✓ Folded'):null,h('span',{class:'card-arrow','aria-hidden':'true'},'↗')),
+ h('div',{class:'card-info'},h('div',{},h('p',{class:'eyebrow'},model.category),h('h3',{},model.name)),h('span',{class:'card-steps'},`${model.steps.length} steps`,h('span',{},saved&&!saved.completed&&saved.step>0?`Continue at step ${saved.step+1}`:'Beginner friendly'))));}
+function gallery(){document.title='Origami — One fold at a time';const grid=h('div',{class:'model-grid'});const buttons=[];
+ function filter(){grid.replaceChildren(...models.flatMap((model,i)=>category==='All models'||model.category===category?[card(model,i)]:[]));buttons.forEach(b=>b.setAttribute('aria-pressed',String(b.textContent===category)));}
+ for(const label of ['All models',...new Set(models.map(m=>m.category))])buttons.push(h('button',{class:'filter-chip',type:'button','aria-pressed':String(label===category),onclick:()=>{category=label;filter();}},label));filter();
+ main.replaceChildren(
+  h('section',{class:'hero','aria-labelledby':'hero-title'},h('div',{class:'hero-copy'},h('p',{class:'eyebrow hero-eyebrow'},h('span',{class:'dot','aria-hidden':'true'}),'Something lovely, from something simple'),
+   h('h1',{id:'hero-title'},'One piece of paper.',h('br'),h('em',{},'A world of possibility.')),
+   h('p',{class:'hero-description'},'A square becomes a puppy. A few folds become a boat. Discover the quiet joy of origami, one small step at a time.'),
+   h('a',{class:'button primary',href:'#models'},'Find your first fold',arrow()),h('p',{class:'hero-footnote'},'Just paper. No glue, no scissors. A little patience helps.')),
+  h('a',{class:'hero-art peach',href:'#/boat','aria-label':'Learn to fold a paper boat'},h('span',{class:'floating-label label-top'},'a little paper magic'),diagram(models.find(m=>m.id==='boat'),{thumbnail:true}),h('div',{class:'hero-art-footer'},h('span',{},'The little paper boat',h('small',{},'A classic worth slowing down for.')),h('span',{class:'round-arrow','aria-hidden':'true'},'↗')))),
+  h('section',{class:'how-strip','aria-label':'How it works'},[['01','Pick a little project','Start with a square or a rectangle.'],['02','Follow each fold','See the paper before and after.'],['03','Make something yours','Swipe, fold, and enjoy the process.']].map(([n,title,text])=>h('div',{},h('span',{class:'how-number'},n),h('div',{},h('h2',{},title),h('p',{},text))))),
+  h('section',{id:'models',class:'models-section','aria-labelledby':'models-title'},h('div',{class:'section-heading'},h('div',{},h('p',{class:'eyebrow'},'Where shall we begin?'),h('h2',{id:'models-title'},'A few lovely things to fold.')),h('p',{class:'collection-note'},`${models.length} traditional models`,h('span',{},`${models.filter(m=>progress[m.id]?.completed).length} folded by you`))),h('div',{class:'filter-row',role:'group','aria-label':'Model categories'},buttons),grid),
+  h('aside',{class:'encouragement'},h('span',{'aria-hidden':'true',class:'encouragement-star'},'✳'),h('div',{},h('h2',{},'The first fold doesn’t have to be perfect.'),h('p',{},'Line up the corners first, then smooth the crease from the middle outward. Pause, go back, and try again whenever you like.')),h('a',{href:'#guide'},'Learn the basics ↗')));
+}
+function lesson(model,restoreFocus=false){const focused=document.activeElement?.id;const step=progress[model.id]?.step??0;const current=model.steps[step];const last=step===model.steps.length-1;
+ document.title=`${model.name} — Origami`;
+ function setStep(value){view='guide';celebrate=false;save(model,value);lesson(model,true);}
+ function next(){if(last){save(model,step,true);celebrate=true;view='finished';lesson(model);document.getElementById('finished-title')?.focus({preventScroll:true});}else setStep(moveStep(model,step,1));}
+ const board=h('div',{class:`fold-board ${model.color}`},h('div',{class:'board-top'},h('span',{},view==='finished'?'YOUR FINISHED MODEL':view==='result'?'AFTER THIS ACTION':'BEFORE THIS ACTION'),h('span',{},view==='finished'?'✧':current.action)),diagram(model,{step,view}),h('p',{class:'board-caption'},view==='guide'?(current.folds.length?'Follow the arrow. Fold along the dashed line.':'Follow the instruction, then compare the result.'):view==='result'?'Compare your paper with this result.':'Small folds, made by you.'));
+ setupSwipe(board,direction=>{if(celebrate||view==='finished')return;const value=moveStep(model,step,direction);if(value!==step)setStep(value);});
+ const controls=h('div',{class:'reference-tools'},h('div',{class:'view-tabs',role:'group','aria-label':'Diagram view'},[['guide','Fold guide'],['result','After this fold']].map(([key,title])=>h('button',{id:`view-${key}`,type:'button','aria-pressed':String(view===key),disabled:celebrate,onclick:()=>{view=key;lesson(model,true);}},title))),h('button',{class:'text-button',id:'preview-finished',type:'button',disabled:celebrate,'aria-pressed':String(view==='finished'),onclick:()=>{view=view==='finished'?'guide':'finished';lesson(model,true);}},view==='finished'?'← Back to my step':'Peek at finished model'));
+ const instructions=celebrate?h('section',{class:'instruction finish-panel'},h('span',{class:'finish-star','aria-hidden':'true'},'✳'),h('p',{class:'eyebrow'},'Look what you made'),h('h2',{id:'finished-title',tabindex:'-1'},'A little paper magic.'),h('p',{},`Your ${model.name.toLowerCase()} is complete. Keep this one, share it, or fold another.`),h('button',{class:'button primary',type:'button',onclick:()=>setStep(0)},'Fold it again','↺'),h('a',{class:'button secondary',href:'#models'},'Choose another model',arrow())):
+ h('section',{class:'instruction','aria-labelledby':'instruction-title'},h('div',{class:'instruction-top'},h('p',{class:'eyebrow'},`Step ${step+1} of ${model.steps.length}`),h('span',{class:'step-badge'},String(step+1).padStart(2,'0'))),
+ h('div',{class:'instruction-copy','aria-live':'polite','aria-atomic':'true'},h('h2',{id:'instruction-title'},view==='finished'?'Here’s where we’re headed.':current.title),h('p',{},view==='finished'?'This is the finished model. Return to your step whenever you’re ready.':current.text)),
+ current.note&&view!=='finished'?h('p',{class:'step-note'},current.note):null,
+ h('div',{class:'take-time'},h('span',{'aria-hidden':'true'},'〰'),'Make the fold on your paper, then swipe left for the next step.'),
+ h('div',{class:'lesson-controls'},h('button',{id:'step-prev',type:'button',class:'button secondary',disabled:step===0||view==='finished',onclick:()=>setStep(moveStep(model,step,-1))},'←','Previous'),h('button',{id:'step-next',type:'button',class:'button primary',disabled:view==='finished',onclick:next},last?'I made it!':'Next step','→')),
+ h('div',{class:'step-range'},h('label',{for:'step-slider'},'Your progress',h('span',{},`${step+1} / ${model.steps.length}`)),h('input',{id:'step-slider',type:'range',min:'1',max:String(model.steps.length),value:String(step+1),disabled:view==='finished','aria-label':'Go to folding step','aria-valuetext':`Step ${step+1}: ${current.title}`,onchange:e=>setStep(Number(e.target.value)-1)})),h('p',{class:'keyboard-hint'},'Use ← and → on a keyboard, or swipe on the diagram.'));
+ main.replaceChildren(h('div',{class:'lesson-shell'},h('div',{class:'lesson-breadcrumb'},h('a',{href:'#models'},'← All models'),h('a',{href:'#guide'},'Fold symbols & basics ↗')),h('div',{class:'lesson-title-row'},h('div',{},h('p',{class:'eyebrow'},model.category),h('h1',{},model.name)),h('p',{class:'lesson-intro'},model.intro)),
+ h('div',{class:'paper-requirements'},h('span',{'aria-hidden':'true'},'◇'),model.paper,h('span',{},'Thin, easy-to-crease paper works best.')),
+ h('div',{class:'lesson-workspace'},h('div',{class:'reference-column'},board,controls,h('div',{class:'mini-legend'},h('span',{},h('i',{class:'legend-fold'}),'Fold here'),h('span',{},h('i',{class:'legend-crease'}),'Existing crease'),h('span',{},h('i',{class:'legend-arrow'}),'→ Fold direction'))),instructions),
+ h('div',{class:'lesson-bottom'},h('p',{},'Diagrams are recentered for clarity. Use the paper layers shown, not a drawing on the screen.'),h('button',{class:'text-button',type:'button',onclick:()=>setStep(0)},'↺ Start over')),h('p',{class:'source-note'},'Traditional model · ',h('a',{href:model.source,target:'_blank',rel:'noopener noreferrer'},'Folding reference ↗'),' · Diagrams and lesson text created for this site.')));
+ if(restoreFocus&&focused){const node=document.getElementById(focused);if(node&&!node.disabled)node.focus({preventScroll:true});}
+}
+function guide(){document.title='The folding guide — Origami';main.replaceChildren(h('article',{class:'guide-page'},h('a',{class:'back-link',href:'#models'},'← Back to the models'),h('p',{class:'eyebrow'},'A few things before you begin'),h('h1',{},'Small folds. Clear beginnings.'),h('p',{class:'guide-intro'},'The screen is your guide. The paper in your hands is where the magic happens.'),
+ h('div',{class:'guide-grid'},[
+ ['◇','Choose your paper','Square models need a true square; hats and boats need a rectangle. Each lesson tells you the shape and size. Start with thin origami paper or ordinary printer paper.'],
+ ['↷','Read the arrow','The arrow points from the part you are moving toward its destination. Match corners or edges first, then press the crease.'],
+ ['┄','Fold along the dashed line','A coral dashed line marks the new fold. Fold toward yourself unless the step says to fold behind. A dash-dot line means fold away from you.'],
+ ['⋯','Keep the existing creases','Fine gray dashed lines are folds already made and reopened. They help you find the middle or line up the next fold.'],
+ ['↔','Compare before and after','The Fold guide view shows the paper before the action. After this fold shows the result. The diagram may move or change size to keep it easy to see.'],
+ ['◐','Watch the paper layers','The main color is the front, the pale side is the back, and darker panels show overlapping or shaded layers. Some steps move only one layer; read the instruction before folding.'],
+ ['↺','Turn, tuck, and open','Turn over means flip the whole model like a page, keeping the top at the top. Tuck means slide a flap into a pocket. Open gently separates layers to make a three-dimensional shape.'],
+ ['← →','Go at your pace','Swipe left or right on the large diagram, use Previous and Next, or use the keyboard arrows. Vertical swipes still scroll. Your progress stays in this browser when storage is available.'],
+ ].map(([symbol,title,text])=>h('section',{},h('span',{class:'guide-symbol','aria-hidden':'true'},symbol),h('h2',{},title),h('p',{},text)))),h('a',{class:'button primary',href:'#/puppy'},'Try your first fold',arrow())));}
+function route(){view='guide';celebrate=false;const model=modelFromHash(location.hash);if(model)lesson(model);else if(location.hash==='#guide')guide();else gallery();main.focus({preventScroll:true});if(location.hash==='#models')document.getElementById('models')?.scrollIntoView();else scrollTo({top:0,behavior:'instant'});}
+window.addEventListener('hashchange',route);
+window.addEventListener('keydown',e=>{const model=modelFromHash(location.hash);if(!model||celebrate||view==='finished'||e.altKey||e.metaKey||e.ctrlKey||e.shiftKey||e.target.closest('input,textarea,select,[contenteditable]'))return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();const button=document.getElementById(e.key==='ArrowRight'?'step-next':'step-prev');if(!button.disabled)button.click();}});
+document.querySelector('.skip-link').addEventListener('click',e=>{e.preventDefault();main.focus();main.scrollIntoView();});
+route();
