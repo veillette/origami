@@ -4,8 +4,8 @@ import {models,modelById} from '../src/models.js';
 import {diagram} from '../src/art.js';
 import {readProgress,modelFromHash,moveStep} from '../src/state.js';
 
-test('all six models have sourced complete sequences with continuous before/after states',()=>{
- assert.equal(models.length,6);assert.equal(modelById.size,models.length);
+test('all 26 models have sourced complete sequences with continuous before/after states',()=>{
+ assert.equal(models.length,26);assert.equal(modelById.size,models.length);
  for(const model of models){
   assert.match(model.id,/^[a-z-]+$/);assert.ok(model.name&&model.intro&&model.paper);assert.match(model.source,/^https:\/\//);
   assert.ok(model.steps.length>=5);assert.equal(model.steps.at(-1).action==='Finish'||model.steps.at(-1).action==='Open',true);
@@ -13,7 +13,7 @@ test('all six models have sourced complete sequences with continuous before/afte
   for(const step of model.steps){
    assert.equal(step.before,before,'each action begins with the last action’s result');
    assert.ok(step.title&&step.text&&step.action);assert.ok(step.before.length&&step.after.length);
-   for(const path of [...step.before,...step.after]){assert.match(path.d,/^M /);assert.doesNotMatch(path.d,/undefined|NaN|Infinity/);assert.ok(['front','light','dark','back','crease','decoration'].includes(path.kind));}
+   for(const path of [...step.before,...step.after]){assert.match(path.d,/^M /);assert.doesNotMatch(path.d,/undefined|NaN|Infinity/);assert.ok(['front','light','dark','back','crease','decoration','ink'].includes(path.kind));}
    for(const path of [...step.folds,...step.arrows])assert.match(path,/^M /);
    before=step.after;
   }

@@ -50,7 +50,8 @@ const secondFrames=[
  [P('M 110 110 L 210 110 L 210 210 L 110 210 Z'),P('M 110 110 L 210 110 L 160 160 Z','light'),P('M 210 110 L 210 210 L 160 160 Z','dark'),P('M 210 210 L 110 210 L 160 160 Z','light'),C('M 110 110 L 210 210')],
 ];
 const fortuneFinal=[P('M 160 64 L 250 155 L 160 185 L 70 155 Z'),P('M 160 64 L 160 185 L 70 155 Z','light'),P('M 70 155 L 160 185 L 160 272 L 90 218 Z','dark'),P('M 250 155 L 160 185 L 160 272 L 230 218 Z','light'),C('M 160 185 L 160 272')];
-export const models=[
+import {extraModels} from "./more-models.js";
+const initialModels=[
 model('puppy','Floppy-eared puppy','First folds','peach','One square · 15 × 15 cm','A few simple folds turn a square into a little friend. Optional: draw a face at the end.','https://web-japan.org/kidsweb/virtual/origami/exploring02a.html',diamond,[
  step('Make a downward triangle.','Start white side up. Bring the top corner down to the bottom corner, matching both side edges.',down,['M 30 160 L 290 160'],['M 160 48 Q 225 145 160 275'],'Fold','The diagram recenters the folded triangle. Its long edge should now be at the top.'),
  step('Find the middle.','Bring the left corner to the right corner, press the vertical crease, then open back to the triangle.',[...down,C('M 160 100 L 160 220')],['M 160 100 L 160 220'],['M 55 110 Q 160 65 263 110'],'Crease & unfold'),
@@ -123,4 +124,5 @@ model('fortune-teller','Fortune teller','Play & share','pink','One square · 20 
  step('Add your own messages.','Take it off your fingers to decorate the four outside flaps. Add numbers and messages inside, then open and close it to play.',fortuneFinal,[],[],'Finish'),
 ]),
 ];
+export const models=[...initialModels,...extraModels];
 export const modelById=new Map(models.map(m=>[m.id,m]));

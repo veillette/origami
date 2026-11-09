@@ -1,7 +1,8 @@
 # Origami — One fold at a time
 
-A public, phone-friendly site for learning to fold real paper. Six traditional
-beginner projects: puppy face, cup, corner bookmark, hat, boat and fortune teller.
+A public, phone-friendly site for learning to fold real paper. 26 paper-folding projects, from the original six first projects to animal faces,
+flowers, gifts, planes, a piano, a box and a samurai helmet. More involved models
+are labeled “Next-step folding” in the gallery.
 
 Each lesson includes paper shape/size, clear instructions, an original schematic
 of the paper before each action, and a separate after-action view. New folds use
@@ -26,7 +27,8 @@ python3 -m http.server 8000 --directory dist
 Open http://localhost:8000. Lesson links use hashes and assets use relative paths,
 so the site also works under `/origami/` on GitHub Pages.
 
-- `src/models.js`: traditional folding sequences, before/after paper layers and references.
+- `src/models.js`, `src/more-models.js`: 26 folding sequences, paper requirements, before/after layers and references.
+- `src/paper.js`: geometric clipping and reflection for flat folds; perspective openings use authored schematic frames.
 - `src/art.js`: SVG diagrams, crease symbols and arrows.
 - `src/app.js`, `src/styles.css`: gallery, folding guide and responsive lesson interface.
 - `src/state.js`, `src/swipe.js`: guarded saved progress and touch navigation.
@@ -55,3 +57,16 @@ created for this project; reference illustrations are not redistributed.
 
 DM Sans and DM Serif Display are self-hosted; their SIL Open Font Licenses are
 included in `src/fonts/`.
+
+## Expanded collection
+
+Twenty additions: cat face, fox face, rabbit face, bear face, whale, penguin,
+fish, heart, flat tulip blossom, ice cream cone, house, piano, envelope, hand fan,
+dart, blunt-nose glider, masu box, single-sail boat, samurai helmet and cicada.
+Every model includes its construction reference in the lesson. All diagrams and
+text are authored for this site; external photographs and PDFs are not bundled.
+
+Flat-fold diagrams use reflected paper panels. Openings, squash folds, reverse
+folds and perspective views are schematic, with written instructions explaining
+the action. Model size or orientation may change between frames for clarity.
+The two aircraft are classic paper-plane forms, alongside the traditional origami.
