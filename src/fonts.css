@@ -3,40 +3,33 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url(fonts/font-1.ttf) format('truetype');
-}
-@font-face {
-  font-family: 'DM Sans';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url(fonts/font-2.ttf) format('truetype');
+  src: url(fonts/dm-sans-400.woff2) format('woff2');
 }
 @font-face {
   font-family: 'DM Sans';
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url(fonts/font-3.ttf) format('truetype');
+  src: url(fonts/dm-sans-600.woff2) format('woff2');
 }
 @font-face {
   font-family: 'DM Sans';
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url(fonts/font-4.ttf) format('truetype');
+  src: url(fonts/dm-sans-700.woff2) format('woff2');
 }
 @font-face {
   font-family: 'DM Serif Display';
   font-style: italic;
   font-weight: 400;
   font-display: swap;
-  src: url(fonts/font-5.ttf) format('truetype');
+  src: url(fonts/dm-serif-display-italic.woff2) format('woff2');
 }
 @font-face {
   font-family: 'DM Serif Display';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url(fonts/font-6.ttf) format('truetype');
+  src: url(fonts/dm-serif-display-regular.woff2) format('woff2');
 }

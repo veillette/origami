@@ -8,9 +8,9 @@ const diamond=[P('M 160 30 L 290 160 L 160 290 L 30 160 Z','back')];
 const up=[P('M 40 220 L 160 100 L 280 220 Z')];
 const down=[P('M 40 100 L 280 100 L 160 220 Z')];
 const rect=[P('M 60 20 L 260 20 L 260 300 L 60 300 Z','back')];
-const half=[P('M 60 100 L 260 100 L 260 240 L 60 240 Z')];
-const roofL=[P('M 60 100 L 260 100 L 260 240 L 60 240 L 60 200 L 160 100 Z'),P('M 160 100 L 160 200 L 60 200 Z','light')];
-const roof=[P('M 60 200 L 160 100 L 260 200 L 260 240 L 60 240 Z'),P('M 60 200 L 160 100 L 160 200 Z','light'),C('M 160 100 L 160 200')];
+const half=[P('M 60 100 L 260 100 L 260 240 L 60 240 Z'),C('M 160 100 L 160 240')];
+const roofL=[P('M 160 100 L 260 100 L 260 240 L 60 240 L 60 200 Z'),P('M 160 100 L 160 200 L 60 200 Z','light'),C('M 160 200 L 160 240')];
+const roof=[P('M 60 200 L 160 100 L 260 200 L 260 240 L 60 240 Z'),P('M 60 200 L 160 100 L 160 200 Z','light'),C('M 160 100 L 160 240')];
 const brim=[...roof,P('M 60 160 L 260 160 L 260 200 L 60 200 Z','light')];
 const hat=[P('M 60 200 L 160 100 L 260 200 Z'),P('M 60 180 L 260 180 L 260 200 L 60 200 Z','light'),C('M 160 100 L 160 180')];
 const hatFront=[...roof,P('M 60 180 L 260 180 L 260 200 L 60 200 Z','light')];
@@ -38,10 +38,10 @@ const boatSmall=[P('M 160 90 L 230 160 L 160 230 L 90 160 Z'),P('M 160 90 L 160 
 const boatFinal=[P('M 160 80 L 105 208 L 215 208 Z','light'),P('M 45 182 L 160 218 L 275 182 L 226 259 L 94 259 Z'),P('M 45 182 L 160 218 L 94 259 Z','dark')];
 // The four first folds turn an axis-aligned square into a diamond.
 const firstFrames=[
- [P('M 160 60 L 260 60 L 260 260 L 60 260 L 60 160 Z','back'),P('M 160 60 L 160 160 L 60 160 Z')],
- [P('M 160 60 L 260 160 L 260 260 L 60 260 L 60 160 Z','back'),P('M 160 60 L 160 160 L 60 160 Z'),P('M 160 60 L 260 160 L 160 160 Z','light')],
- [P('M 160 60 L 260 160 L 160 260 L 60 260 L 60 160 Z','back'),P('M 160 60 L 160 160 L 60 160 Z'),P('M 160 60 L 260 160 L 160 160 Z','light'),P('M 260 160 L 160 260 L 160 160 Z')],
- [P('M 160 60 L 260 160 L 160 260 L 60 160 Z'),C('M 160 60 L 160 260'),C('M 60 160 L 260 160')],
+ [P('M 160 60 L 260 60 L 260 260 L 60 260 L 60 160 Z','back'),P('M 160 60 L 160 160 L 60 160 Z'),C('M 110 110 L 260 260'),C('M 260 60 L 60 260')],
+ [P('M 160 60 L 260 160 L 260 260 L 60 260 L 60 160 Z','back'),P('M 160 60 L 160 160 L 60 160 Z'),P('M 160 60 L 260 160 L 160 160 Z','light'),C('M 110 110 L 260 260'),C('M 210 110 L 60 260')],
+ [P('M 160 60 L 260 160 L 160 260 L 60 260 L 60 160 Z','back'),P('M 160 60 L 160 160 L 60 160 Z'),P('M 160 60 L 260 160 L 160 160 Z','light'),P('M 260 160 L 160 260 L 160 160 Z'),C('M 110 110 L 210 210'),C('M 210 110 L 60 260')],
+ [P('M 160 60 L 260 160 L 160 260 L 60 160 Z'),C('M 160 60 L 160 260'),C('M 60 160 L 260 160'),C('M 110 110 L 210 210'),C('M 210 110 L 110 210')],
 ];
 const secondFrames=[
  [P('M 110 110 L 210 110 L 260 160 L 160 260 L 60 160 Z'),P('M 110 110 L 210 110 L 160 160 Z','light')],
@@ -114,7 +114,7 @@ model('fortune-teller','Fortune teller','Play & share','pink','One square · 20 
  step('Bring in the top-right corner.','Place the second point at the same center intersection.',firstFrames[1],['M 160 60 L 260 160'],['M 255 65 L 165 155']),
  step('Bring in the bottom-right corner.','Fold the third corner to the center.',firstFrames[2],['M 260 160 L 160 260'],['M 255 255 L 165 165']),
  step('Bring in the last corner.','Fold the bottom-left point in. All four points meet in the middle.',firstFrames[3],['M 160 260 L 60 160'],['M 65 255 L 155 165']),
- step('Turn the whole model over.','Flip it left to right without opening the folded corners. Keep a point at the top.',[P('M 160 60 L 260 160 L 160 260 L 60 160 Z','back')],[],[],'Turn over'),
+ step('Turn the whole model over.','Flip it left to right without opening the folded corners. Keep a point at the top.',[P('M 160 60 L 260 160 L 160 260 L 60 160 Z','back'),C('M 110 110 L 210 210'),C('M 210 110 L 110 210')],[],[],'Turn over'),
  step('Fold the top point to the center.','Start a second set of corner folds on this side.',secondFrames[0],['M 110 110 L 210 110'],['M 160 65 L 160 155']),
  step('Fold the right point inward.','Bring the right point to the middle.',secondFrames[1],['M 210 110 L 210 210'],['M 255 160 L 165 160']),
  step('Fold the bottom point inward.','Bring the bottom point to the middle.',secondFrames[2],['M 210 210 L 110 210'],['M 160 255 L 160 165']),

@@ -8,6 +8,10 @@ function h(tag,attrs={},...children){const node=document.createElement(tag);for(
  if(value==null||value===false)continue;if(key.startsWith('on'))node.addEventListener(key.slice(2).toLowerCase(),value);else node.setAttribute(key,value===true?'':String(value));
 }node.append(...children.flat(Infinity).filter(c=>c!=null&&c!==false));return node;}
 const arrow=()=>h('span',{'aria-hidden':'true'},'↗');
+// The live region lives outside <main>, which is rebuilt on every render; screen
+// readers only announce changes to a region that already exists.
+const announcer=document.getElementById('announcer');let announceTimer;
+function announce(text){announcer.textContent='';clearTimeout(announceTimer);announceTimer=setTimeout(()=>{announcer.textContent=text;},60);}
 function save(model,step,completed=progress[model.id]?.completed===true){progress[model.id]={step,completed};saveProgress(progress);}
 function card(model,index){const saved=progress[model.id];return h('a',{class:`model-card ${model.color}`,href:`#/${model.id}`},
  h('div',{class:'card-art'},h('span',{class:'card-number'},String(index+1).padStart(2,'0')),diagram(model,{thumbnail:true}),saved?.completed?h('span',{class:'completed-badge'},'✓ Folded'):null,h('span',{class:'card-arrow','aria-hidden':'true'},'↗')),
@@ -33,8 +37,8 @@ function lesson(model,restoreFocus=false){const focused=document.activeElement?.
  setupSwipe(board,direction=>{if(celebrate||view==='finished')return;const value=moveStep(model,step,direction);if(value!==step)setStep(value);});
  const controls=h('div',{class:'reference-tools'},h('div',{class:'view-tabs',role:'group','aria-label':'Diagram view'},[['guide','Fold guide'],['result','After this fold']].map(([key,title])=>h('button',{id:`view-${key}`,type:'button','aria-pressed':String(view===key),disabled:celebrate,onclick:()=>{view=key;lesson(model,true);}},title))),h('button',{class:'text-button',id:'preview-finished',type:'button',disabled:celebrate,'aria-pressed':String(view==='finished'),onclick:()=>{view=toggleFinishedPeek(view);lesson(model,true);}},view==='finished'?'← Back to my step':'Peek at finished model'));
  const instructions=celebrate?h('section',{class:'instruction finish-panel'},h('span',{class:'finish-star','aria-hidden':'true'},'✳'),h('p',{class:'eyebrow'},'Look what you made'),h('h2',{id:'finished-title',tabindex:'-1'},'A little paper magic.'),h('p',{},`Your ${model.name.toLowerCase()} is complete. Keep this one, share it, or fold another.`),h('button',{class:'button primary',type:'button',onclick:()=>setStep(0)},'Fold it again','↺'),h('a',{class:'button secondary',href:'#models'},'Choose another model',arrow())):
- h('section',{class:'instruction','aria-labelledby':'instruction-title'},h('div',{class:'instruction-top'},h('p',{class:'eyebrow'},`Step ${step+1} of ${model.steps.length}`),h('span',{class:'step-badge'},String(step+1).padStart(2,'0'))),
- h('div',{class:'instruction-copy','aria-live':'polite','aria-atomic':'true'},h('h2',{id:'instruction-title'},view==='finished'?'Here’s where we’re headed.':current.title),h('p',{},view==='finished'?'This is the finished model. Return to your step whenever you’re ready.':current.text)),
+ h('section',{class:'instruction','aria-labelledby':'instruction-title'},h('div',{class:'instruction-top'},h('p',{class:'eyebrow'},`Step ${step+1} of ${model.steps.length}`),h('span',{class:'step-badge','aria-hidden':'true'},String(step+1).padStart(2,'0'))),
+ h('div',{class:'instruction-copy'},h('h2',{id:'instruction-title'},view==='finished'?'Here’s where we’re headed.':current.title),h('p',{},view==='finished'?'This is the finished model. Return to your step whenever you’re ready.':current.text)),
  current.note&&view!=='finished'?h('p',{class:'step-note'},current.note):null,
  h('div',{class:'take-time'},h('span',{'aria-hidden':'true'},'〰'),'Make the fold on your paper, then swipe left for the next step.'),
  h('div',{class:'lesson-controls'},h('button',{id:'step-prev',type:'button',class:'button secondary',disabled:step===0||view==='finished',onclick:()=>setStep(moveStep(model,step,-1))},'←','Previous'),h('button',{id:'step-next',type:'button',class:'button primary',disabled:view==='finished',onclick:next},last?'I made it!':'Next step','→')),
@@ -43,7 +47,11 @@ function lesson(model,restoreFocus=false){const focused=document.activeElement?.
  h('div',{class:'paper-requirements'},h('span',{'aria-hidden':'true'},'◇'),model.paper,h('span',{},'Thin, easy-to-crease paper works best.')),
  h('div',{class:'lesson-workspace'},h('div',{class:'reference-column'},board,controls,h('div',{class:'mini-legend'},h('span',{},h('i',{class:'legend-fold'}),'Fold here'),h('span',{},h('i',{class:'legend-crease'}),'Existing crease'),h('span',{},h('i',{class:'legend-arrow'}),'→ Fold direction'))),instructions),
  h('div',{class:'lesson-bottom'},h('p',{},'Diagrams are recentered for clarity. Use the paper layers shown, not a drawing on the screen.'),h('button',{class:'text-button',type:'button',onclick:()=>setStep(0)},'↺ Start over')),h('p',{class:'source-note'},'Traditional model · ',h('a',{href:model.source,target:'_blank',rel:'noopener noreferrer'},'Folding reference ↗'),' · Diagrams and lesson text created for this site.')));
- if(restoreFocus&&focused){const node=document.getElementById(focused);if(node&&!node.disabled)node.focus({preventScroll:true});}
+ if(restoreFocus){
+  // A control can become disabled (Previous on step 1); keep focus on a usable one.
+  if(focused){const target=[focused,'step-next','step-prev','preview-finished'].map(id=>document.getElementById(id)).find(n=>n&&!n.disabled);(target??main).focus({preventScroll:true});}
+  if(!celebrate)announce(view==='finished'?`${model.name}: finished model preview.`:`Step ${step+1} of ${model.steps.length}${view==='result'?', after this fold':''}: ${current.title}`);
+ }
 }
 function guide(){document.title='The folding guide — Origami';main.replaceChildren(h('article',{class:'guide-page'},h('a',{class:'back-link',href:'#models'},'← Back to the models'),h('p',{class:'eyebrow'},'A few things before you begin'),h('h1',{},'Small folds. Clear beginnings.'),h('p',{class:'guide-intro'},'The screen is your guide. The paper in your hands is where the magic happens.'),
  h('div',{class:'guide-grid'},[
@@ -56,7 +64,7 @@ function guide(){document.title='The folding guide — Origami';main.replaceChil
  ['↺','Turn, tuck, and open','Turn over means flip the whole model like a page, keeping the top at the top. Tuck means slide a flap into a pocket. Open gently separates layers to make a three-dimensional shape.'],
  ['← →','Go at your pace','Swipe left or right on the large diagram, use Previous and Next, or use the keyboard arrows. Vertical swipes still scroll. Your progress stays in this browser when storage is available.'],
  ].map(([symbol,title,text])=>h('section',{},h('span',{class:'guide-symbol','aria-hidden':'true'},symbol),h('h2',{},title),h('p',{},text)))),h('a',{class:'button primary',href:'#/puppy'},'Try your first fold',arrow())));}
-function route(){view='guide';celebrate=false;const destination=pageFromHash(location.hash);if(destination.page==='lesson')lesson(destination.model);else if(destination.page==='guide')guide();else gallery();main.focus({preventScroll:true});if(destination.scrollModels)document.getElementById('models')?.scrollIntoView();else scrollTo({top:0,behavior:'instant'});}
+function route(){view='guide';celebrate=false;announcer.textContent='';const destination=pageFromHash(location.hash);if(destination.page==='lesson')lesson(destination.model);else if(destination.page==='guide')guide();else gallery();main.focus({preventScroll:true});if(destination.scrollModels)document.getElementById('models')?.scrollIntoView();else scrollTo({top:0,behavior:'instant'});}
 window.addEventListener('hashchange',route);
 window.addEventListener('keydown',e=>{const model=modelFromHash(location.hash);if(!model||celebrate||view==='finished'||e.altKey||e.metaKey||e.ctrlKey||e.shiftKey||e.target.closest('input,textarea,select,[contenteditable]'))return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();const button=document.getElementById(e.key==='ArrowRight'?'step-next':'step-prev');if(!button.disabled)button.click();}});
 document.querySelector('.skip-link').addEventListener('click',e=>{e.preventDefault();main.focus();main.scrollIntoView();});

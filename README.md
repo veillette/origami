@@ -28,15 +28,16 @@ Open http://localhost:8000. Lesson links use hashes and assets use relative path
 so the site also works under `/origami/` on GitHub Pages.
 
 - `src/models.js`, `src/more-models.js`: 26 folding sequences, paper requirements, before/after layers and references.
-- `src/paper.js`: geometric clipping and reflection for flat folds; perspective openings use authored schematic frames.
+- `src/paper.js`: geometric clipping and reflection for flat folds, keeping existing creases through folds and turns; a fold can be limited to chosen layers (one flap). Perspective openings use authored schematic frames.
 - `src/art.js`: SVG diagrams, crease symbols and arrows.
 - `src/app.js`, `src/styles.css`: gallery, folding guide and responsive lesson interface.
 - `src/state.js`, `src/swipe.js`: guarded saved progress and touch navigation.
-- `tools/build.mjs`: copies the source to `dist/`; optional `SITE_URL` sets generated canonical metadata.
+- `tools/build.mjs`: copies the source to `dist/` (or the directory given as its argument); optional `SITE_URL` sets canonical, Open Graph URL and share-image metadata.
 
-The Node tests verify diagram continuity between steps, all frames, data and
-progress boundaries, hash routing, celebrate/peek view helpers, gesture handling,
-and the built site. They do not replace physical paper folding, visual review, or
+The Node tests verify diagram continuity between steps, that every action visibly
+changes the paper and every fold draws its fold line on the paper, crease handling,
+all frames, data and progress boundaries, hash routing, celebrate/peek view helpers,
+gesture handling, a 12px minimum type size, and the built site. They do not replace physical paper folding, visual review, or
 real phone/browser testing.
 
 ## Publish
@@ -56,8 +57,9 @@ created for this project; reference illustrations are not redistributed.
 - [Paper hat](https://www.origami-fun.com/origami-hat.html) and [boat](https://www.origami-fun.com/origami-boat.html): Origami-Fun.
 - [Fortune teller](https://origami-resource-center.com/fortune-teller/): Origami Resource Center.
 
-DM Sans and DM Serif Display are self-hosted; their SIL Open Font Licenses are
-included in `src/fonts/`.
+DM Sans and DM Serif Display are self-hosted as WOFF2; their SIL Open Font Licenses are
+included in `src/fonts/`. `src/og-image.png` is the link-preview image, drawn from the
+site's own diagrams.
 
 ## Expanded collection
 
