@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {models,modelById} from '../src/models.js';
 import {diagram} from '../src/art.js';
-import {readProgress,modelFromHash,moveStep} from '../src/state.js';
+import {readProgress,modelFromHash,moveStep,pageFromHash,afterNextStep,afterJumpStep,toggleFinishedPeek} from '../src/state.js';
 
 test('all 26 models have sourced complete sequences with continuous before/after states',()=>{
  assert.equal(models.length,26);assert.equal(modelById.size,models.length);
@@ -29,6 +29,22 @@ test('progress survives malformed, blocked and obsolete storage and clamps steps
 test('all lesson URLs resolve and navigation stops at both ends',()=>{
  for(const model of models){assert.equal(modelFromHash(`#/${model.id}`),model);assert.equal(moveStep(model,0,-1),0);assert.equal(moveStep(model,model.steps.length-1,1),model.steps.length-1);assert.equal(moveStep(model,0,1),1);}
  for(const hash of ['','#guide','#models','#/missing'])assert.equal(modelFromHash(hash),null);
+});
+test('hash routing chooses lesson, folding guide or gallery',()=>{
+ const puppy=modelById.get('puppy');
+ assert.deepEqual(pageFromHash('#/puppy'),{page:'lesson',model:puppy});
+ assert.deepEqual(pageFromHash('#guide'),{page:'guide'});
+ assert.deepEqual(pageFromHash(''),{page:'gallery',scrollModels:false});
+ assert.deepEqual(pageFromHash('#models'),{page:'gallery',scrollModels:true});
+ assert.deepEqual(pageFromHash('#/missing'),{page:'gallery',scrollModels:false});
+});
+test('next-step and peek helpers drive celebrate and finished views',()=>{
+ assert.deepEqual(afterNextStep(0,6),{step:1,completed:false,celebrate:false,view:'guide'});
+ assert.deepEqual(afterNextStep(5,6),{step:5,completed:true,celebrate:true,view:'finished'});
+ assert.deepEqual(afterJumpStep(3),{step:3,celebrate:false,view:'guide'});
+ assert.equal(toggleFinishedPeek('guide'),'finished');
+ assert.equal(toggleFinishedPeek('finished'),'guide');
+ assert.equal(toggleFinishedPeek('result'),'finished');
 });
 test('every step renders correct before/after layers and previews do not add fold arrows',t=>{
  const prior=globalThis.document;

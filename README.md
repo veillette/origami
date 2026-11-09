@@ -35,8 +35,9 @@ so the site also works under `/origami/` on GitHub Pages.
 - `tools/build.mjs`: copies the source to `dist/`; optional `SITE_URL` sets generated canonical metadata.
 
 The Node tests verify diagram continuity between steps, all frames, data and
-progress boundaries, gesture handling, and the built site. They do not replace
-physical paper folding, visual review, or real phone/browser testing.
+progress boundaries, hash routing, celebrate/peek view helpers, gesture handling,
+and the built site. They do not replace physical paper folding, visual review, or
+real phone/browser testing.
 
 ## Publish
 

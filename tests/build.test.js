@@ -11,5 +11,12 @@ test('Pages artifact contains all assets and uses the deployed subpath without m
  assert.equal(readFileSync(new URL('src/index.html',root),'utf8'),original);
  for(const asset of ['app.js','models.js','art.js','state.js','swipe.js','styles.css','fonts.css','icon.svg'])assert.ok(existsSync(new URL(`dist/${asset}`,root)));
  for(const url of readFileSync(new URL('dist/fonts.css',root),'utf8').matchAll(/url\(([^)]+)\)/g))assert.ok(existsSync(new URL(`dist/${url[1]}`,root)));
- assert.match(readFileSync(new URL('src/styles.css',root),'utf8'),/prefers-reduced-motion/);
+ const css=readFileSync(new URL('src/styles.css',root),'utf8');
+ assert.match(css,/prefers-reduced-motion/);
+ for(const color of ['peach','sage','lilac','butter','blue','pink']){
+  assert.match(css,new RegExp(`\\.${color} \\.card-art\\{`));
+  assert.match(css,new RegExp(`\\.fold-diagram\\.${color}\\{`));
+ }
+ assert.match(original,/aria-label="Origami home"/);
+ assert.match(original,/canonical" href="https:\/\/veillette\.github\.io\/origami\/"/);
 });
