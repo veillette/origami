@@ -1,4 +1,4 @@
-import {path as C,crease as mark,square,diamond,rectangle,fold,turn,rotate,creaseLine} from './paper.js';
+import {path as C,crease as mark,square,diamond,rectangle,fold,turn,rotate,creaseLine,reflectionAcross} from './paper.js';
 const extra=[];
 const src=slug=>`https://www.origami-instructions.com/${slug}.html`;
 const paints=['peach','sage','lilac','butter','blue','pink'];
@@ -10,8 +10,7 @@ function make(id,name,category,paper,intro,source,start,write,level='Beginner fr
  const add=(title,text,after,folds=[],arrows=[],action='Fold',note='')=>{steps.push({title,text,before:state,after,folds,arrows,action,note});state=after;};
  // `only` picks the layers that move (see fold); by default every layer folds.
  const f=(title,text,a,b,moving,behind=false,only=null)=>{
-  const dx=b[0]-a[0],dy=b[1]-a[1],t=((moving[0]-a[0])*dx+(moving[1]-a[1])*dy)/(dx*dx+dy*dy);
-  const target=[2*(a[0]+t*dx)-moving[0],2*(a[1]+t*dy)-moving[1]];
+  const target=reflectionAcross(a,b)(moving);
   add(title,text,fold(state,a,b,moving,behind,only),[creaseLine(a,b)],[`M ${moving.join(' ')} L ${target.join(' ')}`],behind?'Fold behind':'Fold');
  };
  // Reinforcing an existing crease does not draw it twice.

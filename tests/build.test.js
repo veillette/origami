@@ -1,37 +1,86 @@
-import {test} from 'node:test';
+import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import {execFileSync} from 'node:child_process';
-import {readFileSync,existsSync,readdirSync,mkdtempSync,rmSync,statSync} from 'node:fs';
-import {tmpdir} from 'node:os';
-import {join} from 'node:path';
-import {fileURLToPath} from 'node:url';
-const root=fileURLToPath(new URL('../',import.meta.url));
-const src=join(root,'src');
-test('Pages artifact contains every source file and uses the deployed subpath without modifying source or dist/',t=>{
- const out=mkdtempSync(join(tmpdir(),'origami-build-'));
- t.after(()=>rmSync(out,{recursive:true,force:true}));
- const original=readFileSync(join(src,'index.html'),'utf8');
- const dist=join(root,'dist','index.html');const distBefore=existsSync(dist)?readFileSync(dist,'utf8'):null;
- execFileSync(process.execPath,['tools/build.mjs',out],{cwd:root,env:{...process.env,SITE_URL:'https://example.github.io/origami/'}});
- const html=readFileSync(join(out,'index.html'),'utf8');
- assert.ok(html.includes('href="https://example.github.io/origami/"'));assert.ok(html.includes('content="https://example.github.io/origami/"'));
- assert.ok(html.includes('content="https://example.github.io/origami/og-image.png"'));
- assert.equal(readFileSync(join(src,'index.html'),'utf8'),original);
- assert.equal(existsSync(dist)?readFileSync(dist,'utf8'):null,distBefore,'the test build leaves dist/ alone');
- for(const file of readdirSync(src,{recursive:true}))if(statSync(join(src,file)).isFile())assert.ok(existsSync(join(out,file)),file);
- for(const url of readFileSync(join(out,'fonts.css'),'utf8').matchAll(/url\(([^)]+)\)/g))assert.ok(existsSync(join(out,url[1])),url[1]);
- const css=readFileSync(join(src,'styles.css'),'utf8');
- assert.match(css,/prefers-reduced-motion/);
- for(const color of ['peach','sage','lilac','butter','blue','pink']){
-  assert.match(css,new RegExp(`\\.${color} \\.card-art\\{`));
-  assert.match(css,new RegExp(`\\.fold-diagram\\.${color}\\{`));
- }
- for(const [,px] of css.matchAll(/font-size:(\d+)px/g))assert.ok(Number(px)>=12,`font-size ${px}px is below the 12px floor`);
- assert.match(original,/aria-label="Origami home"/);
- assert.match(original,/canonical" href="https:\/\/veillette\.github\.io\/origami\/"/);
- assert.match(original,/id="announcer"[^>]*aria-live="polite"/);
+import { readFile, readdir, mkdtemp, rm, stat, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { models } from '../src/models.js';
+import { buildSite } from '../tools/build.mjs';
+
+const root = fileURLToPath(new URL('../', import.meta.url));
+const src = join(root, 'src');
+
+async function temporaryOutput(t) {
+  const out = await mkdtemp(join(tmpdir(), 'origami-build-'));
+  t.after(() => rm(out, { recursive: true, force: true }));
+  return out;
+}
+
+async function readIfPresent(path) {
+  try {
+    return await readFile(path, 'utf8');
+  } catch (error) {
+    if (error.code === 'ENOENT') return null;
+    throw error;
+  }
+}
+
+test('Pages artifact copies every source file and uses the deployed subpath without modifying source or dist', async (t) => {
+  const out = await temporaryOutput(t);
+  const index = join(src, 'index.html');
+  const original = await readFile(index, 'utf8');
+  const dist = join(root, 'dist', 'index.html');
+  const distBefore = await readIfPresent(dist);
+
+  await buildSite({ output: out, siteUrl: 'https://example.github.io/origami?preview=1#top' });
+
+  const html = await readFile(join(out, 'index.html'), 'utf8');
+  assert.ok(html.includes('href="https://example.github.io/origami/"'));
+  assert.ok(html.includes('content="https://example.github.io/origami/"'));
+  assert.ok(html.includes('content="https://example.github.io/origami/og-image.png"'));
+  assert.equal(await readFile(index, 'utf8'), original);
+  assert.equal(await readIfPresent(dist), distBefore, 'the test build leaves dist/ alone');
+  const entries = await readdir(src, { recursive: true, withFileTypes: true });
+  for (const entry of entries.filter((entry) => entry.isFile())) {
+    const outputPath = join(out, relative(src, entry.parentPath), entry.name);
+    assert.ok((await stat(outputPath)).isFile(), outputPath);
+  }
+  const fonts = await readFile(join(out, 'fonts.css'), 'utf8');
+  for (const [, url] of fonts.matchAll(/url\(([^)]+)\)/g)) {
+    assert.ok((await stat(join(out, url))).isFile(), url);
+  }
 });
-test('the build refuses an output directory that would delete the source',()=>{
- for(const out of [root,src])assert.throws(()=>execFileSync(process.execPath,['tools/build.mjs',out],{cwd:root,stdio:'pipe'}));
- assert.ok(existsSync(join(src,'index.html')));
+
+test('CSS covers model palettes, reduced motion and the minimum fixed font size', async () => {
+  const css = await readFile(join(src, 'styles.css'), 'utf8');
+  assert.match(css, /prefers-reduced-motion/);
+  for (const color of new Set(models.map((model) => model.color))) {
+    assert.match(css, new RegExp(`\\.${color}\\s+\\.card-art\\s*\\{`));
+    assert.match(css, new RegExp(`\\.fold-diagram\\.${color}\\s*\\{`));
+  }
+  for (const [, px] of css.matchAll(/font-size:\s*([\d.]+)px/g)) {
+    assert.ok(Number(px) >= 12, `font-size ${px}px is below the 12px floor`);
+  }
+});
+
+test('the page has a home link, default canonical URL and a live region', async () => {
+  const html = await readFile(join(src, 'index.html'), 'utf8');
+  assert.match(html, /aria-label="Origami home"/);
+  assert.match(html, /canonical" href="https:\/\/veillette\.github\.io\/origami\/"/);
+  assert.match(html, /id="announcer"[^>]*aria-live="polite"/);
+});
+
+test('the build refuses outputs overlapping the source or Git metadata', async () => {
+  for (const output of [root, src, join(src, 'out'), join(root, '.git'), join(root, '.git', 'out')]) {
+    await assert.rejects(buildSite({ output }), /Refusing to build into/);
+  }
+  assert.ok((await stat(join(src, 'index.html'))).isFile());
+});
+
+test('invalid site metadata leaves the previous build intact', async (t) => {
+  const output = await temporaryOutput(t);
+  const index = join(output, 'index.html');
+  await writeFile(index, 'previous build');
+  await assert.rejects(buildSite({ output, siteUrl: 'file:///origami' }), /SITE_URL must use HTTP or HTTPS/);
+  assert.equal(await readFile(index, 'utf8'), 'previous build');
 });

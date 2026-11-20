@@ -30,9 +30,11 @@ so the site also works under `/origami/` on GitHub Pages.
 - `src/models.js`, `src/more-models.js`: 26 folding sequences, paper requirements, before/after layers and references.
 - `src/paper.js`: geometric clipping and reflection for flat folds, keeping existing creases through folds and turns; a fold can be limited to chosen layers (one flap). Perspective openings use authored schematic frames.
 - `src/art.js`: SVG diagrams, crease symbols and arrows.
-- `src/app.js`, `src/styles.css`: gallery, folding guide and responsive lesson interface.
+- `src/app.js`: hash routing, progress persistence and screen-reader announcements.
+- `src/gallery.js`, `src/guide.js`, `src/lesson.js`: page rendering and controls. The lesson owns its current step and diagram view. `src/dom.js` provides shared DOM helpers.
+- `src/styles.css`: shared styles, page layouts, diagram colors and responsive rules.
 - `src/state.js`, `src/swipe.js`: guarded saved progress and touch navigation.
-- `tools/build.mjs`: copies the source to `dist/` (or the directory given as its argument); optional `SITE_URL` sets canonical, Open Graph URL and share-image metadata.
+- `tools/build.mjs`: copies the source to `dist/` (or the directory given as its argument); optional `SITE_URL` sets canonical, Open Graph URL and share-image metadata. The build function also runs directly in tests.
 
 The Node tests verify diagram continuity between steps, that every action visibly
 changes the paper and every fold draws its fold line on the paper, crease handling,
