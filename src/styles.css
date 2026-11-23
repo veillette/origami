@@ -489,6 +489,7 @@ main {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 20px;
   border-top: 1px solid var(--line);
   color: var(--muted);
@@ -504,7 +505,7 @@ main {
 .site-footer p {
   margin: 0;
 }
-.site-footer > a:last-child {
+.site-footer > .footer-guide {
   text-underline-offset: 4px;
   min-height: 44px;
   display: flex;
@@ -1242,7 +1243,7 @@ main {
     font-size: 12px;
     margin-left: auto;
   }
-  .site-footer > a:last-child {
+  .site-footer > .footer-guide {
     font-size: 12px;
     margin-left: auto;
   }
@@ -1420,7 +1421,7 @@ main {
   .fold-board .fold-diagram {
     height: 280px;
   }
-  .lesson-breadcrumb > a:last-child {
+  .lesson-breadcrumb > a:nth-of-type(2) {
     font-size: 12px;
   }
 }
@@ -1455,4 +1456,24 @@ main {
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
+}
+
+.offline-install {
+  flex: 1 0 100%;
+  max-width: 40rem;
+  font-size: 1rem;
+}
+
+.offline-install summary {
+  padding-block: .65rem;
+  cursor: pointer;
+}
+
+.offline-install button {
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.copy-status:not(:empty) {
+  margin-inline-start: .5em;
 }

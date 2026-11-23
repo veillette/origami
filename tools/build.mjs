@@ -1,6 +1,7 @@
 import { cp, mkdir, rm, readFile, writeFile } from 'node:fs/promises';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { writeServiceWorker } from './build-worker.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sourceDir = resolve(root, 'src');
@@ -40,6 +41,7 @@ export async function buildSite({ output = resolve(root, 'dist'), siteUrl } = {}
   await mkdir(outputDir, { recursive: true });
   await cp(sourceDir, outputDir, { recursive: true });
   if (siteUrl) await writeFile(resolve(outputDir, 'index.html'), rewritten);
+  await writeServiceWorker(outputDir);
   return outputDir;
 }
 

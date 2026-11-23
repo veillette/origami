@@ -20,6 +20,10 @@
  <link rel="stylesheet" href="fonts.css">
  <link rel="stylesheet" href="styles.css">
  <script type="module" src="app.js"></script>
+ <link rel="manifest" href="manifest.webmanifest">
+ <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+ <script src="copy-link.js" defer></script>
+ <script src="pwa.js" defer></script>
 </head>
 <body>
  <a class="skip-link" href="#main">Skip to content</a>
@@ -30,7 +34,14 @@
  </header>
  <main id="main" tabindex="-1"></main>
  <p id="announcer" class="visually-hidden" aria-live="polite" aria-atomic="true"></p>
- <footer class="site-footer"><a href="#" class="footer-brand">origami.</a><p>Made for quiet moments & curious hands.</p><a href="#guide">Small folds. Take your time.</a></footer>
+ <footer class="site-footer"><a href="#" class="footer-brand">origami.</a><p>Made for quiet moments & curious hands.</p><a class="footer-guide" href="#guide">Small folds. Take your time.</a>
+  <details class="offline-install" id="install" hidden>
+    <summary>Install for offline use</summary>
+    <p>On iPhone or iPad, use Safari’s Share menu and choose Add to Home Screen. On Android or desktop, use your browser’s install option when offered.</p>
+    <button type="button" id="install-button" hidden>Install the app</button>
+    <p id="offline-status" role="status"></p>
+  </details>
+ </footer>
  <noscript><p class="noscript">Please enable JavaScript to use the step-by-step folding lessons.</p></noscript>
 </body>
 </html>

@@ -1,0 +1,9 @@
+{
+  "routes": [
+    {
+      "path": "#boat",
+      "selector": ".lesson-title-row h1",
+      "text": "Little paper boat"
+    }
+  ]
+}

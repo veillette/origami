@@ -225,6 +225,8 @@ export function openLesson(main, model, { savedStep, save, announce }) {
           { class: 'lesson-breadcrumb' },
           h('a', { href: '#models' }, '← All models'),
           h('a', { href: '#guide' }, 'Fold symbols & basics ↗'),
+          h('button', { class: 'text-button', type: 'button', 'data-copy-link': location.hash }, 'Copy lesson link'),
+          h('span', { class: 'copy-status', role: 'status' }),
         ),
         h(
           'div',

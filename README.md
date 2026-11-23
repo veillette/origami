@@ -15,14 +15,18 @@ keyboard arrows. Vertical swipes scroll and pinch gestures remain available.
 Progress is saved in this browser when storage is available; blocked or malformed
 storage does not prevent folding. No accounts, analytics, or runtime dependencies.
 
-## Develop
+Use **Copy lesson link** to share a model. For offline folding, open the built site and wait for the ready message under **Install for offline use**. The build generates the offline file list and cache version from the deployment files.
 
-Node.js 26, as declared in `.nvmrc`. No dependency installation is required.
+## Check, build, and preview
+
+Use Node.js 26 and Python 3. The site has no npm dependencies.
 
 ```sh
-npm run check
+npm run check  # checks and builds dist/
 python3 -m http.server 8000 --directory dist
 ```
+
+The Pages workflow runs the deployment smoke test against `dist/`. Run `node .github/site-smoke.mjs dist --assets-only` to check the offline file list locally.
 
 Open http://localhost:8000. Lesson links use hashes and assets use relative paths,
 so the site also works under `/origami/` on GitHub Pages.
@@ -41,6 +45,23 @@ changes the paper and every fold draws its fold line on the paper, crease handli
 all frames, data and progress boundaries, hash routing, celebrate/peek view helpers,
 gesture handling, a 12px minimum type size, and the built site. They do not replace physical paper folding, visual review, or
 real phone/browser testing.
+
+### Shared site helpers
+
+From the Origami checkout, run `node tools/sync-site-helpers.mjs` to check the
+local copies in the sibling `~/vgit` repositories. The script lists the source
+of each helper. Origami holds the source copies of the reusable Pages workflow
+and the deployment smoke test. Each repository owns its workflow inputs in
+`.github/workflows/pages.yml` and its smoke test routes in `.github/site-smoke.json`.
+The local copies let each pull request test workflow changes alongside the
+site they affect. After editing a source, run the same command with `--write` and
+review the diffs in the affected repositories. Each site still builds from its
+own checkout.
+
+The deployment smoke test uses Playwright in CI. To run it locally with an
+existing Playwright installation, set `PLAYWRIGHT_MODULE` to the absolute path
+of its `playwright/index.mjs`, then run `node .github/site-smoke.mjs dist` after
+building. Install that Playwright version’s Chromium before running the test.
 
 ## Publish
 

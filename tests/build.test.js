@@ -35,6 +35,13 @@ test('Pages artifact copies every source file and uses the deployed subpath with
   await buildSite({ output: out, siteUrl: 'https://example.github.io/origami?preview=1#top' });
 
   const html = await readFile(join(out, 'index.html'), 'utf8');
+  const worker = await readFile(join(out, 'sw.js'), 'utf8');
+  const precached = JSON.parse(worker.match(/^const files = (\[.*\]);$/m)[1]);
+  for (const asset of ['index.html', 'app.js', 'copy-link.js', 'styles.css', 'manifest.webmanifest', 'icons/icon-512.png']) {
+    assert.ok(precached.includes(asset), asset + ' is available offline');
+  }
+  assert.match(worker, /const cacheName = .*[0-9a-f]{16}/);
+  assert.ok(html.includes('href="manifest.webmanifest"'));
   assert.ok(html.includes('href="https://example.github.io/origami/"'));
   assert.ok(html.includes('content="https://example.github.io/origami/"'));
   assert.ok(html.includes('content="https://example.github.io/origami/og-image.png"'));
