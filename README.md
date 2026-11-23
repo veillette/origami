@@ -31,7 +31,7 @@ The Pages workflow runs the deployment smoke test against `dist/`. Run `node .gi
 Open http://localhost:8000. Lesson links use hashes and assets use relative paths,
 so the site also works under `/origami/` on GitHub Pages.
 
-- `src/models.js`, `src/more-models.js`: 26 folding sequences, paper requirements, before/after layers and references.
+- `src/models.js`, `src/more-models.js`: Folding sequences, paper requirements, before/after layers and references.
 - `src/paper.js`: geometric clipping and reflection for flat folds, keeping existing creases through folds and turns; a fold can be limited to chosen layers (one flap). Perspective openings use authored schematic frames.
 - `src/art.js`: SVG diagrams, crease symbols and arrows.
 - `src/app.js`: hash routing, progress persistence and screen-reader announcements.

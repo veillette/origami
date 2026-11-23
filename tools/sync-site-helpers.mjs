@@ -29,6 +29,8 @@ const sharedFiles = [
     'ukulele-first-strum/site/copy-link.js',
   ]],
   ['livres/js/copier-lien.js', ['chansons/js/copier-lien.js']],
+  ['livres/js/imposition.js', ['chansons/js/imposition.js']],
+  ['livres/js/navigation-lecture.js', ['chansons/js/navigation-lecture.js']],
   ['origami/src/pwa.js', ['field-and-verge/dist/pwa.js', 'sketchbook/src/pwa.js']],
   ['origami/tools/sw.js', ['field-and-verge/scripts/sw.js', 'sketchbook/tools/sw.js']],
   ['origami/tools/build-worker.mjs', [
