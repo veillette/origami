@@ -12,3 +12,8 @@
   When editing a shared source listed in `tools/sync-site-helpers.mjs`, run
   `node tools/sync-site-helpers.mjs --write` from this checkout and review the
   affected sibling repos. Every site can build from its own checkout.
+- One-way sync: edit shared gallery/lesson shell helpers, PWA, copy-link, and
+  CI smoke files here, then sync out to sketchbook, field-and-verge,
+  ukulele-first-strum, A-Table, and aperitif as listed in
+  `tools/sync-site-helpers.mjs`. Do not edit those copies in the sibling repos
+  unless you are also updating the Origami source in the same change.

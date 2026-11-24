@@ -58,6 +58,16 @@ site they affect. After editing a source, run the same command with `--write` an
 review the diffs in the affected repositories. Each site still builds from its
 own checkout.
 
+**One-way sync.** Edit shared helpers only in their source repo, then copy out:
+
+- Origami → sketchbook, field-and-verge, ukulele-first-strum, A-Table, aperitif
+  for Pages CI, smoke tests, copy-link, and (where listed) PWA/worker builders.
+- Livres → chansons for `copier-lien.js`, `imposition.js`, and
+  `navigation-lecture.js`.
+
+Do not diverge the copies: change the source, run
+`node tools/sync-site-helpers.mjs --write`, and review each sibling.
+
 The deployment smoke test uses Playwright in CI. To run it locally with an
 existing Playwright installation, set `PLAYWRIGHT_MODULE` to the absolute path
 of its `playwright/index.mjs`, then run `node .github/site-smoke.mjs dist` after
