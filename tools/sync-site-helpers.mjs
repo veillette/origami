@@ -28,6 +28,12 @@ const sharedFiles = [
     'sketchbook/src/copy-link.js',
     'ukulele-first-strum/site/copy-link.js',
   ]],
+  ['aperitif/js/storage.js', [
+    'A-Table/dist/lib/storage.js',
+    'origami/src/storage.js',
+    'sketchbook/src/storage.js',
+    'ukulele-first-strum/site/storage.js',
+  ]],
   ['livres/js/copier-lien.js', ['chansons/js/copier-lien.js']],
   ['livres/js/imposition.js', ['chansons/js/imposition.js']],
   ['livres/js/navigation-lecture.js', ['chansons/js/navigation-lecture.js']],
