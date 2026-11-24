@@ -62,11 +62,14 @@ own checkout.
 
 - Origami → sketchbook, field-and-verge, ukulele-first-strum, A-Table, aperitif
   for Pages CI, smoke tests, copy-link, and (where listed) PWA/worker builders.
+- Aperitif `js/storage.js` → A-Table, origami, sketchbook, and
+  ukulele-first-strum (the shared `store` helper). Edit storage only in aperitif.
 - Livres → chansons for `copier-lien.js`, `imposition.js`, and
   `navigation-lecture.js`.
 
 Do not diverge the copies: change the source, run
-`node tools/sync-site-helpers.mjs --write`, and review each sibling.
+`node tools/sync-site-helpers.mjs --write` from this Origami checkout, and
+review each sibling.
 
 The deployment smoke test uses Playwright in CI. To run it locally with an
 existing Playwright installation, set `PLAYWRIGHT_MODULE` to the absolute path

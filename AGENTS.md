@@ -17,3 +17,6 @@
   ukulele-first-strum, A-Table, and aperitif as listed in
   `tools/sync-site-helpers.mjs`. Do not edit those copies in the sibling repos
   unless you are also updating the Origami source in the same change.
+- Browser `store` lives in aperitif `js/storage.js` and is synced here as
+  `src/storage.js`. Edit storage in aperitif, then run the sync script from
+  this checkout.
